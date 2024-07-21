@@ -1,4 +1,4 @@
-import numpy as np
+import numpy as np    
 import pandas as pd
 import re
 from sklearn.model_selection import train_test_split
@@ -6,15 +6,19 @@ from sklearn.linear_model import LogisticRegression
 from sklearn.metrics import accuracy_score, classification_report 
 from sklearn.feature_extraction.text import TfidfVectorizer
 
-news = pd.read_csv('news.csv')  
+news = pd.read_csv('news.csv')  #including the data set
 
-news.drop("title", axis = 1,inplace = True)
+#Data cleaning
 
-news = news.loc[:, ~news.columns.str.contains('^Unnamed')]
+news.drop("title", axis = 1,inplace = True) #Removing unnessary column for data set
 
-news.isnull().sum()
+news = news.loc[:, ~news.columns.str.contains('^Unnamed')] #Removing unnamed column form data set
 
-import re 
+news.isnull().sum() #Checking that the dataset does not contain any null values
+
+
+#Function for removing the unnessary symbol, alphabets, punctuation, link, HTML tags and make every character lower casr
+import re               
 def clean_text(text):
     # lower case
     text = text.lower()
@@ -35,12 +39,16 @@ def clean_text(text):
     
     return text
 
-news['text'] = news['text'].apply(clean_text)
+news['text'] = news['text'].apply(clean_text)  #Calling the function and clean the text field
 
 x = news['text']
 y = news['label']
 
+#Split the dataset into test and train model
+
 x_train, x_test, y_train, y_test = train_test_split(x,y,test_size= 0.4, random_state= 7)
+
+#Convert the text data to numerical value that system can understand
 vectorizer = TfidfVectorizer()
 xv_train = vectorizer.fit_transform(x_train)
 xv_test = vectorizer.transform(x_test)
@@ -58,6 +66,8 @@ print(f"Accuracy :{accuracy:.2f}")
 print("Report :\n",classification_report(y_test,y_pred))
 
 
+
+#Function for testing the model mannually
 def manual_testing(news):
     testing_news = {"text":[news]}
     test_news_df = pd.DataFrame(testing_news)
@@ -65,7 +75,6 @@ def manual_testing(news):
     test_news_x = test_news_df['text']
     test_news_xv = vectorizer.transform(test_news_x)
     pr_LG = modelLG.predict(test_news_xv)
-
     print("News is :", pr_LG[-1])
 
 check = str(input())
